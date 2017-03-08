@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './css/App.css';
-// import Board from './Board'
 
 const modeToLabel = {
   "hvh": "Human vs Human",
@@ -53,32 +51,55 @@ class Menu extends Component {
     return (
     <div className="form-wrapper">
       <form onSubmit={this.handleSubmit} >
-        <label>Human vs Human
-        <input type="radio" name="mode" value="hvh" id="hvh"
-                onChange={this.handleModeChange}
-                checked={this.state.mode === "hvh"} />
-        </label>
-        <label>Human vs CPU</label>
-        <input type="radio" name="mode" value="hvc" id="hvc"
-                onChange={this.handleModeChange}
-                checked={this.state.mode === "hvc"} />
-        <label>CPU vs CPU</label>
-        <input type="radio" name="mode" value="cvc" id="cvc"
-                onChange={this.handleModeChange}
-                checked={this.state.mode === "cvc"} />
+        <div className="radio">
+          <label>
+            <input type="radio" name="mode" value="hvh" id="hvh"
+                    onChange={this.handleModeChange}
+                    checked={this.state.mode === "hvh"} />
+            Human vs Human
+          </label>
+        </div>
+        <div className="radio">
+          <label>
+            <input type="radio" name="mode" value="hvc" id="hvc"
+                    onChange={this.handleModeChange}
+                    checked={this.state.mode === "hvc"} />
+            Human vs CPU
+          </label>
+        </div>
+        <div className="radio">
+          <label>
+            <input type="radio" name="mode" value="cvc" id="cvc"
+                    onChange={this.handleModeChange}
+                    checked={this.state.mode === "cvc"} />
+            CPU vs CPU
+          </label>
+        </div>
 
-        <label>3x3</label>
-        <input type="radio" name="grid-size" value="3" id="g3"
-                onChange={this.handleGridChange}
-                checked={this.state.grid === 3} />
-        <label>4x4</label>
-        <input type="radio" name="grid-size" value="4" id="g4"
-                onChange={this.handleGridChange}
-                checked={this.state.grid === 4} />
-        <label>5x5</label>
-        <input type="radio" name="grid-size" value="5" id="g5"
-                onChange={this.handleGridChange}
-                checked={this.state.grid === 5} />
+        <div className="radio">
+          <label>
+            <input type="radio" name="grid-size" value="3" id="g3"
+                    onChange={this.handleGridChange}
+                    checked={this.state.grid === 3} />
+            3x3
+          </label>
+        </div>
+        <div className="radio">
+          <label>
+            <input type="radio" name="grid-size" value="4" id="g4"
+                    onChange={this.handleGridChange}
+                    checked={this.state.grid === 4} />
+            4x4
+          </label>
+        </div>
+        <div className="radio">
+          <label>
+            <input type="radio" name="grid-size" value="5" id="g5"
+                    onChange={this.handleGridChange}
+                    checked={this.state.grid === 5} />
+            5x5
+          </label>
+        </div>
 
         <input type="submit" value="New Game" />
       </form>
@@ -150,7 +171,7 @@ class Game extends Component {
       }
     }
     const next = cpuAgent()
-    setTimeout(() => this.nextTurn(next[0], next[1]), 2000)
+    setTimeout(() => this.nextTurn(next[0], next[1]), 1000)
   }
   initialState(mode, grid) {
     return {
@@ -175,7 +196,7 @@ class Game extends Component {
   }
   render() {
     return (
-      <div className="container">
+      <div className="game container">
         <Menu newGame={(m,g) => this.handleNewGame(m,g)}/>
         <Board boxes={this.state.boxes} onClick={(r,c) => this.handleOnClick(r,c)}/>
         <GameStatus isOTurn={this.state.turnCount % 2} mode={this.state.mode}
@@ -190,8 +211,7 @@ class App extends Component {
     return (
       <div className="App">
         <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
+          <h2>Tic Tac Toe</h2>
         </div>
         <Game />
       </div>
