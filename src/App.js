@@ -1,147 +1,22 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './css/App.css';
+import Menu from './Menu'
+import Board from './Board'
+import GameStatus from './GameStatus'
 
-const modeToLabel = {
-  "hvh": "Human vs Human",
-  "hvc": "Human vs CPU",
-  "cvc": "CPU vs CPU"
-}
 
-const Box = (props) => (
-  <button className="box" onClick={() => props.onClick()}>
-    {props.value}
-  </button>
-)
-
-const Board = (props) => {
-  const boxes = props.boxes;
-  const boxRows = boxes.map((row, r) => (
-    <div className="board-row" key={r}>
-      {row.map((box, c) => (
-        <Box value={boxes[r][c]} onClick={() => props.onClick(r,c)} key={c} />
-      ))}
-    </div>
-  ));
-  return <div className="board">{boxRows}</div>;
-}
-
-class Menu extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      mode: "hvh",
-      grid: 3
-    }
-    this.handleModeChange = this.handleModeChange.bind(this);
-    this.handleGridChange = this.handleGridChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-  handleModeChange(e) {
-    this.setState({ mode: e.target.value });
-  }
-  handleGridChange(e) {
-    this.setState({ grid: parseInt(e.target.value, 10) });
-  }
-  handleSubmit(e) {
-    e.preventDefault();
-    this.props.newGame(this.state.mode, this.state.grid);
-    // alert("You have selected mode: " + this.state.mode + " and grid size: " + this.state.grid);
-  }
-  render() {
-    return (
-    <div className="form-wrapper">
-      <form onSubmit={this.handleSubmit} >
-        <div className="radio">
-          <label>
-            <input type="radio" name="mode" value="hvh" id="hvh"
-                    onChange={this.handleModeChange}
-                    checked={this.state.mode === "hvh"} />
-            Human vs Human
-          </label>
-        </div>
-        <div className="radio">
-          <label>
-            <input type="radio" name="mode" value="hvc" id="hvc"
-                    onChange={this.handleModeChange}
-                    checked={this.state.mode === "hvc"} />
-            Human vs CPU
-          </label>
-        </div>
-        <div className="radio">
-          <label>
-            <input type="radio" name="mode" value="cvc" id="cvc"
-                    onChange={this.handleModeChange}
-                    checked={this.state.mode === "cvc"} />
-            CPU vs CPU
-          </label>
-        </div>
-
-        <div className="radio">
-          <label>
-            <input type="radio" name="grid-size" value="3" id="g3"
-                    onChange={this.handleGridChange}
-                    checked={this.state.grid === 3} />
-            3x3
-          </label>
-        </div>
-        <div className="radio">
-          <label>
-            <input type="radio" name="grid-size" value="4" id="g4"
-                    onChange={this.handleGridChange}
-                    checked={this.state.grid === 4} />
-            4x4
-          </label>
-        </div>
-        <div className="radio">
-          <label>
-            <input type="radio" name="grid-size" value="5" id="g5"
-                    onChange={this.handleGridChange}
-                    checked={this.state.grid === 5} />
-            5x5
-          </label>
-        </div>
-
-        <input type="submit" value="New Game" />
-      </form>
-    </div>)
-  }
-}
-
-function checkWinner(boxes, r, c) {
-  const val = boxes[r][c];
-  const checkVal = (b) => (b === val);
-  // check row
-  if (boxes[r].every(checkVal))
-    return val;
-  // check column
-  if (boxes.map(row => row[c]).every(checkVal))
-    return val;
-  // check diagonal
-  if (r === c && boxes.map((row, i) => row[i]).every(checkVal))
-    return val;
-  // check other diagonal
-  const li = boxes.length - 1
-  if (r + c === li && boxes.map((row, i) => row[li - i]).every(checkVal))
-    return val;
-
-  return null;
-}
-
-const GameStatus = (props) => {
-  return (
-    <div>
-      <h2>{modeToLabel[props.mode]}</h2>
-      <h4>{(props.isOTurn ? "O" : "X") + "'s turn"}</h4>
-      <h3>{props.hasWinner ? props.hasWinner + " has won!" : ""}</h3>
-    </div>
-  );
-}
-
-class Game extends Component {
+class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = this.initialState("hvh", 3)
-    //this.handleOnClick.bind(this)
+  }
+  initialState(mode, grid) {
+    return {
+      boxes: Array(grid).fill(Array(grid).fill(null)),
+      turnCount: 0,
+      hasWinner: null,
+      mode: mode
+    };
   }
   handleOnClick(r, c) {
     if (this.state.boxes[r][c] || this.state.hasWinner)
@@ -156,7 +31,7 @@ class Game extends Component {
     boxes[r] = row;
     this.setState({
       boxes: boxes,
-      hasWinner: checkWinner(boxes, r, c),
+      hasWinner: this.checkWinner(boxes, r, c),
       turnCount: this.state.turnCount + 1
     });
   }
@@ -173,14 +48,6 @@ class Game extends Component {
     const next = cpuAgent()
     setTimeout(() => this.nextTurn(next[0], next[1]), 1000)
   }
-  initialState(mode, grid) {
-    return {
-      boxes: Array(grid).fill(Array(grid).fill(null)),
-      turnCount: 0,
-      hasWinner: null,
-      mode: mode
-    };
-  }
   componentDidUpdate() {
     // make CPU move if necessary
     const turnCount = this.state.turnCount;
@@ -190,6 +57,25 @@ class Game extends Component {
         (mode === "cvc" || (mode === "hvc" && turnCount % 2))) {
       this.cpuMove();
     }
+  }
+  checkWinner(boxes, r, c) {
+    const val = boxes[r][c];
+    const checkVal = (b) => (b === val);
+    // check row
+    if (boxes[r].every(checkVal))
+      return val;
+    // check column
+    if (boxes.map(row => row[c]).every(checkVal))
+      return val;
+    // check diagonal
+    if (r === c && boxes.map((row, i) => row[i]).every(checkVal))
+      return val;
+    // check other diagonal
+    const li = boxes.length - 1
+    if (r + c === li && boxes.map((row, i) => row[li - i]).every(checkVal))
+      return val;
+
+    return null;
   }
   handleNewGame(mode, grid) {
     this.setState(this.initialState(mode, grid));
@@ -206,7 +92,7 @@ class Game extends Component {
   }
 }
 
-class App extends Component {
+class App extends React.Component {
   render() {
     return (
       <div className="App">
